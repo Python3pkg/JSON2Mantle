@@ -4,7 +4,7 @@ JSON2Mantle
 
 Generate Mantle models using JSON files.
 """
-from __future__ import unicode_literals
+
 
 import argparse
 import json
@@ -41,7 +41,7 @@ class JSON2Mantle(object):
         Make `raw_input` as the alias of `input` in Python 3
         """
         if sys.version_info[0] == 2:
-            self.str_type = unicode
+            self.str_type = str
             self.input = raw_input
         elif sys.version_info[0] == 3:
             self.str_type = str
@@ -73,22 +73,22 @@ class JSON2Mantle(object):
         render_h = {}
         render_m = {}
 
-        for model_name, properties in self.properties.items():
+        for model_name, properties in list(self.properties.items()):
             # header: properties
             joined_properties = '\n'.join(
                 map(objc_tpl.property_tpl, properties))
 
             # header: extra headers
             joined_headers = '\n'.join(
-                filter(lambda x: x, map(objc_tpl.header_tpl, properties)))
+                [x for x in map(objc_tpl.header_tpl, properties) if x])
 
             # implementation: aliases
             joined_aliases = '\n            '.join(
-                filter(lambda x: x, map(objc_tpl.alias_tpl, properties)))
+                [x for x in map(objc_tpl.alias_tpl, properties) if x])
 
             # implementation: transformers
             joined_transformers = '\n'.join(
-                filter(lambda x: x, map(objc_tpl.transformer_tpl, properties)))
+                [x for x in map(objc_tpl.transformer_tpl, properties) if x])
 
             render_h[model_name] = {
                 'file_name': model_name,
@@ -130,9 +130,9 @@ class JSON2Mantle(object):
         sub_model = {}
 
         class_name = self.trim_class_name(class_name)
-        print('Generating "{}" file'.format(class_name))
+        print(('Generating "{}" file'.format(class_name)))
 
-        for original_name, value in dict_data.items():
+        for original_name, value in list(dict_data.items()):
             new_name = self._convert_name_style(original_name)
 
             if isinstance(value, dict):
@@ -153,7 +153,7 @@ class JSON2Mantle(object):
             elif isinstance(value, list):
                 new_class_name = self.make_class_name(new_name)
                 if len(value) == 0:
-                    print('WARNING: "{}" is not generated'.format(new_class_name))
+                    print(('WARNING: "{}" is not generated'.format(new_class_name)))
                     continue
                 if isinstance(value[0], dict):
                     sub_model = self.extract_properties(value[0], new_class_name)
@@ -200,8 +200,8 @@ class JSON2Mantle(object):
                     'class_name': 'CGFloat',
                     'transform': None,
                 }
-            elif isinstance(value, types.NoneType):
-                print('WARNING: "{}" is NULL'.format(original_name))
+            elif isinstance(value, type(None)):
+                print(('WARNING: "{}" is NULL'.format(original_name)))
             else:
                 raise ValueError(value)
 
@@ -241,9 +241,9 @@ def init_args():
         try:
             os.mkdir(args.output_dir)
         except IOError:
-            print('Error: could not create directory {}'.format(
+            print(('Error: could not create directory {}'.format(
                 args.output_dir
-            ))
+            )))
             exit()
 
     return args
@@ -257,7 +257,7 @@ def main():
     try:
         dict_data = json.loads(open(args.json_file).read())
     except IOError:
-        print('Error: no such file {}'.format(args.json_file))
+        print(('Error: no such file {}'.format(args.json_file)))
         exit()
 
     j2m = JSON2Mantle()

@@ -4,7 +4,7 @@ JSON2Mantle
 Utilities
 """
 
-from __future__ import unicode_literals
+
 
 import os
 import pwd
@@ -28,13 +28,13 @@ except ImportError:
 
 def pythonize(objc_obj):
     if isinstance(objc_obj, objc.pyobjc_unicode):
-        return unicode(objc_obj)
+        return str(objc_obj)
     elif isinstance(objc_obj, ab.NSDate):
         return objc_obj.description()
     elif isinstance(objc_obj, ab.NSCFDictionary):
         # implicitly assuming keys are strings...
         return {k.lower(): pythonize(objc_obj[k])
-                for k in objc_obj.keys()}
+                for k in list(objc_obj.keys())}
     elif isinstance(objc_obj, ab.ABMultiValueCoreDataWrapper):
         return [pythonize(objc_obj.valueAtIndex_(index))
                 for index in range(0, objc_obj.count())]

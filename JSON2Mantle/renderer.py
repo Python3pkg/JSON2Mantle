@@ -28,12 +28,12 @@ class TemplateRenderer(object):
         """Renders template file with given data
         """
         for model in ('h', 'm'):
-            for class_name, prop in self.properties[model].items():
+            for class_name, prop in list(self.properties[model].items()):
                 filename = '{}.{}'.format(class_name, model)
                 output_file = os.path.join(self.output_dir, filename)
                 output_doc = self.templates[model]
 
-                for name, value in prop.items():
+                for name, value in list(prop.items()):
                     placeholder = '{{%s}}' % (name,)
                     output_doc = output_doc.replace(placeholder, value)
 
